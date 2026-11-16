@@ -17,7 +17,7 @@ npm test        # matching rules
 ## Deploy to Vercel
 
 1. Push this folder to GitHub and import it in Vercel. No settings to change.
-2. Optional, only if a site blocks Vercel's servers: create a free key at scraperapi.com and add it as the env var `SCRAPER_API_KEY`. Every request tries a direct fetch first and uses the proxy only when it detects a bot wall.
+2. Optional, only if a site blocks Vercel's servers: create a free key at scraperapi.com and add it as the env var `SCRAPER_API_KEY`. Every request tries a direct fetch first and uses the proxy only when it detects a bot wall. On Vercel, Amazon blocks direct requests almost always, so set the key for any deployed demo. Optional: `SCRAPER_COUNTRY=in` routes through Indian IPs, which may need a paid ScraperAPI plan.
 
 ## Code map
 

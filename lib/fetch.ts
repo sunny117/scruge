@@ -10,15 +10,20 @@ const HEADERS = {
 export class NotFoundError extends Error {}
 
 async function direct(url: string): Promise<{ status: number; body: string }> {
-  const r = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(15_000), cache: "no-store" });
+  // short timeout: on cloud hosts a blocked site often just hangs, and the proxy still needs time
+  const r = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(8_000), cache: "no-store" });
   return { status: r.status, body: await r.text() };
 }
 
 async function viaProxy(url: string): Promise<{ status: number; body: string }> {
   const key = process.env.SCRAPER_API_KEY;
-  if (!key) throw new Error("blocked and SCRAPER_API_KEY is not set");
-  const u = `https://api.scraperapi.com/?api_key=${key}&country_code=in&url=${encodeURIComponent(url)}`;
+  const host = new URL(url).hostname.replace(/^www\./, "");
+  if (!key) throw new Error(`${host} blocked this server. Set SCRAPER_API_KEY (free at scraperapi.com) in the hosting env vars and redeploy.`);
+  // geotargeting outside US/EU may need a paid ScraperAPI plan, so it's opt-in (SCRAPER_COUNTRY=in)
+  const country = process.env.SCRAPER_COUNTRY ? `&country_code=${process.env.SCRAPER_COUNTRY}` : "";
+  const u = `https://api.scraperapi.com/?api_key=${key}${country}&url=${encodeURIComponent(url)}`;
   const r = await fetch(u, { signal: AbortSignal.timeout(60_000), cache: "no-store" });
+  if (r.status === 401 || r.status === 403) throw new Error("ScraperAPI rejected the key (wrong key or free credits used up)");
   return { status: r.status, body: await r.text() };
 }
 

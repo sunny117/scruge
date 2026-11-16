@@ -3,7 +3,7 @@ import { canonicalAmazonUrl, readAmazon, UserError } from "@/lib/amazon";
 import { NotFoundError } from "@/lib/fetch";
 import { findOn, PLATFORMS } from "@/lib/platforms";
 
-export const maxDuration = 60; // proxy fallback can be slow
+export const maxDuration = 120; // proxied fetches take 3–10 s each; fits Vercel Hobby with Fluid compute (max 300 s)
 
 // ponytail: per-instance memory cache; swap for Vercel KV / Redis if hit rate matters
 const cache = new Map<string, { at: number; body: unknown }>();
