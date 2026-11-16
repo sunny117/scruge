@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Same Product Finder
 
-## Getting Started
+Paste any Amazon product link and see whether Flipkart, Croma and Myntra sell the same product: **In stock**, **Out of stock**, or **Not listed**.
 
-First, run the development server:
+Smartphones, TVs, sneakers and T-shirts/polos/jerseys get the assignment's strict rules (RAM + storage, screen size, colour). Any other product gets a **general match**: brand + model name + model number + every measurement both listings mention (litres, watts, GB, pack of N…), and all three platforms are searched.
+
+How the matching works, in plain words: [HOW_IT_WORKS.md](HOW_IT_WORKS.md)
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm test        # matching rules
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deploy to Vercel
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Push this folder to GitHub and import it in Vercel. No settings to change.
+2. Optional, only if a site blocks Vercel's servers: create a free key at scraperapi.com and add it as the env var `SCRAPER_API_KEY`. Every request tries a direct fetch first and uses the proxy only when it detects a bot wall.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Code map
 
-## Learn More
+| File | What it does |
+|---|---|
+| `lib/amazon.ts` | Reads the Amazon page: title, brand, category, RAM/storage, screen, colour, model number |
+| `lib/platforms.ts` | Searches Flipkart / Croma / Myntra, retries with other phrasings, checks stock |
+| `lib/match.ts` | The matching rules (pure functions, no network) |
+| `lib/fetch.ts` | Direct fetch, with ScraperAPI fallback when blocked |
+| `app/api/match/route.ts` | `GET /api/match?url=…` returns JSON |
+| `app/page.tsx` | The single page UI |
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+API example: `/api/match?url=https://www.amazon.in/dp/B0F6ZLFNVT`
